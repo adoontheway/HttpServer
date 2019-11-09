@@ -3,5 +3,17 @@
   "log_level" : 1,
   "log_path" : "./logs",
   "db" : "mongodb://192.168.2.91:27017",
-  "redis" : "192.168.2.91:6379"
+  "redis" : "192.168.2.91:6379",
+  "log" : {
+    "level" : "debug",
+    "encoding" :"json",
+    "outputPaths": ["stdout","./logs"],
+    "errorOutputPaths": ["stderr"],
+    "initialFields": {"author": "chai"},
+    "encoderConfig": {
+      "messageKey" : "message",
+      "levelKey" : "level",
+      "levelEncoder" : "lowercase"
+    }
+  }
 }

@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"gitlab.com/adoontheway/HttpServer/utils"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -13,36 +14,40 @@ type IDBConnector interface {
 }
 
 type dbconnector struct {
-	addr string
+	addr   string
 	client mongo.Client
 }
 
 func NewDBConnector(addr string) IDBConnector {
 	return &dbconnector{
-		addr:addr,
+		addr: addr,
 	}
 }
 
-func (c dbconnector)Connect() bool {
+func (c dbconnector) Connect() bool {
 	clientOptions := options.Client().ApplyURI(c.addr)
-	client,err := mongo.Connect(context.TODO(), clientOptions)
+	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
-		log.Fatal(err)
+		utils.Zapper.Error(err.Error())
+		//log.Fatal(err)
 		return false
 	}
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
-		log.Fatal(err)
+		utils.Zapper.Error(err.Error())
+		//log.Fatal(err)
 		return false
 	}
-	log.Println("Connect to MongoDB successed!")
+	utils.Zapper.Info("Connect to MongoDB successed!")
+	//log.Println("Connect to MongoDB successed!")
 	return true
 }
 
-func (c dbconnector)Close() {
+func (c dbconnector) Close() {
 	err := c.client.Disconnect(context.TODO())
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Disconnect MongoDB successed!")
+	utils.Zapper.Info("Disconnect to MongoDB successed!")
+	//log.Println("Disconnect MongoDB successed!")
 }

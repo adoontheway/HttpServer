@@ -1,6 +1,7 @@
 package HttpServer
 
 import (
+	"fmt"
 	"gitlab.com/adoontheway/HttpServer/handlers"
 	"log"
 	"os"
@@ -20,9 +21,9 @@ func TestNewHttpServer(t *testing.T) {
 	done := make(chan bool, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
-		sig := <- sigs
+		sig := <-sigs
 		log.Println()
-		log.Println("Recieve Signal :",sig)
+		log.Println("Recieve Signal :", sig)
 		done <- true
 	}()
 	<-done
@@ -30,11 +31,14 @@ func TestNewHttpServer(t *testing.T) {
 }
 
 func TestInitFromConfig(t *testing.T) {
-	server,err := InitFromConfig("./config.json")
+	config, err := ReadConfig("./config.json")
+
 	if err != nil {
 		log.Fatal(err)
 		t.Fail()
 	}
+
+	server := NewHttpServer(fmt.Sprintf(":%d", config.Port))
 	server.AddHandler("/register", handlers.Register)
 	server.AddHandler("/login", handlers.Login)
 	server.AddHandler("/", handlers.Index)
@@ -44,9 +48,9 @@ func TestInitFromConfig(t *testing.T) {
 	done := make(chan bool, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
-		sig := <- sigs
+		sig := <-sigs
 		log.Println()
-		log.Println("Recieve Signal :",sig)
+		log.Println("Recieve Signal :", sig)
 		done <- true
 	}()
 	<-done
