@@ -1,10 +1,23 @@
 package HttpServer
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/julienschmidt/httprouter"
+	"gitlab.com/adoontheway/HttpServer/db"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 )
+
+type HttpConfig struct {
+	Port int32 `json:"port"`
+	LogLevel int32 `json:"log_level"`
+	DB string `json:"db"`
+	Redis string `json:"redis"`
+	LogPath string `json:"log_path"`
+}
 
 type IHttpServer interface {
 	AddHandler(addr string, handler httprouter.Handle)
@@ -15,6 +28,26 @@ type IHttpServer interface {
 type httpServer struct {
 	router *httprouter.Router
 	addr string
+}
+
+func InitFromConfig(filepath string) (IHttpServer,error) {
+	configfile, err := os.Open(filepath)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	defer configfile.Close()
+
+	byteValue, err := ioutil.ReadAll(configfile)
+	if err != nil {
+		log.Fatal(err)
+		return nil,err
+	}
+	var config HttpConfig
+	json.Unmarshal(byteValue, &config)
+	s := NewHttpServer(fmt.Sprintf(":%d",config.Port))
+	db.NewDBConnector(config.DB)
+	return s,nil
 }
 
 func NewHttpServer(addr string) IHttpServer  {
