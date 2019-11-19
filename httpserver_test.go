@@ -2,7 +2,9 @@ package HttpServer
 
 import (
 	"fmt"
+	"gitlab.com/adoontheway/HttpServer/db"
 	"gitlab.com/adoontheway/HttpServer/handlers"
+	"gitlab.com/adoontheway/HttpServer/redis"
 	"log"
 	"os"
 	"os/signal"
@@ -31,9 +33,11 @@ func TestNewHttpServer(t *testing.T) {
 }
 
 func TestInitFromConfig(t *testing.T) {
+
 	config, err := ReadConfig("./config.json")
 
 	if err != nil {
+		//utils.Zapper.Error(err.Error())
 		log.Fatal(err)
 		t.Fail()
 	}
@@ -43,6 +47,9 @@ func TestInitFromConfig(t *testing.T) {
 	server.AddHandler("/login", handlers.Login)
 	server.AddHandler("/", handlers.Index)
 	server.Start()
+
+	db.InitMongoConnector(config.DB)
+	redis.InitRedisPool(config.Redis)
 
 	sigs := make(chan os.Signal, 1)
 	done := make(chan bool, 1)
@@ -54,5 +61,6 @@ func TestInitFromConfig(t *testing.T) {
 		done <- true
 	}()
 	<-done
+	//utils.Zapper.Info("Application terminated")
 	log.Println("Application terminated")
 }

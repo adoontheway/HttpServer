@@ -10,6 +10,7 @@ type User struct {
 	RegisterTime primitive.DateTime
 	RegisterIp string
 	LastLoginTime primitive.DateTime
+	LastLoginIp string
 	Gender int32
 	Score int64
 	Status int32

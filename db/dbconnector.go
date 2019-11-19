@@ -2,14 +2,14 @@ package db
 
 import (
 	"context"
-	"gitlab.com/adoontheway/HttpServer/utils"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 )
 
+
 type IDBConnector interface {
-	Connect() bool
+	Connect(addr string) bool
 	Close()
 }
 
@@ -17,29 +17,30 @@ type dbconnector struct {
 	addr   string
 	client mongo.Client
 }
+var connector *dbconnector
 
-func NewDBConnector(addr string) IDBConnector {
-	return &dbconnector{
+func InitMongoConnector(addr string)  {
+	connector = &dbconnector{
 		addr: addr,
 	}
 }
 
-func (c dbconnector) Connect() bool {
+func (c dbconnector) Connect(addr string) bool {
 	clientOptions := options.Client().ApplyURI(c.addr)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
-		utils.Zapper.Error(err.Error())
-		//log.Fatal(err)
+		//utils.Zapper.Error(err.Error())
+		log.Fatal(err)
 		return false
 	}
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
-		utils.Zapper.Error(err.Error())
-		//log.Fatal(err)
+		//utils.Zapper.Error(err.Error())
+		log.Fatal(err)
 		return false
 	}
-	utils.Zapper.Info("Connect to MongoDB successed!")
-	//log.Println("Connect to MongoDB successed!")
+	//utils.Zapper.Info("Connect to MongoDB successed!")
+	log.Println("Connect to MongoDB successed!")
 	return true
 }
 
@@ -48,6 +49,13 @@ func (c dbconnector) Close() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	utils.Zapper.Info("Disconnect to MongoDB successed!")
-	//log.Println("Disconnect MongoDB successed!")
+	//utils.Zapper.Info("Disconnect to MongoDB successed!")
+	log.Println("Disconnect MongoDB successed!")
+}
+
+func GetDBConnector()*IDBConnector  {
+	if connector == nil {
+		InitMongoConnector("")
+	}
+	return connector
 }
