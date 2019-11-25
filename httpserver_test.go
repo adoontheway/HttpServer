@@ -45,11 +45,11 @@ func TestInitFromConfig(t *testing.T) {
 	}
 
 	db.InitMongoConnector(config.DB)
-	redis.InitRedisPool(config.Redis)
+	redis.InitRedisPool(config.Redis, config.RedisPass)
 
 	server := NewHttpServer(fmt.Sprintf(":%d", config.Port))
-	server.AddHandler("/register",GET, handlers.Register)
-	server.AddHandler("/login", GET,handlers.Login)
+	server.AddHandler("/register/:account/:password",GET, handlers.Register)
+	server.AddHandler("/login/:account/:password", GET,handlers.Login)
 	server.AddHandler("/", GET,handlers.Index)
 	go server.Start()
 

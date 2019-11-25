@@ -4,6 +4,7 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type User struct {
 	Account string
+	Password string
 	UserId int64
 	NickName string
 	HeadIndex int32

@@ -3,7 +3,8 @@
   "log_level" : 1,
   "log_path" : "./logs",
   "db" : "mongodb://root:12345@192.168.2.91:27017",
-  "redis" : "192.168.2.91:6379",
+  "redis" : "192.168.2.91:7001",
+  "redis_pass":"",
   "log" : {
     "level" : "debug",
     "encoding" :"json",

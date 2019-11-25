@@ -8,17 +8,21 @@ import (
 
 var pool *redis.Pool
 
-func InitRedisPool(addr string)  {
+func InitRedisPool(addr string, password string)  {
 	pool = &redis.Pool{
 		Dial: func() (conn redis.Conn, err error) {
 			c,err := redis.Dial("tcp",addr)
 			if err != nil {
 				return nil, err
 			}
-			if _,err := c.Do("AUTH","123456");err != nil {
-				c.Close()
-				return nil,err
+
+			if password != "" {
+				if _,err := c.Do("AUTH",password);err != nil {
+					c.Close()
+					return nil,err
+				}
 			}
+
 			if _, err := c.Do("SELECT",0); err != nil {
 				c.Close()
 				return nil, err
@@ -40,7 +44,7 @@ func InitRedisPool(addr string)  {
 func Send(cmd string, args ...interface{}) (reply interface{}, err error) {
 	conn := pool.Get()
 	defer conn.Close()
-	reply, err = conn.Do(cmd,args)
+	reply, err = conn.Do(cmd,args...)
 	if err != nil {
 		log.Println(err)
 	}

@@ -23,6 +23,7 @@ type HttpConfig struct {
 	LogLevel int32  `json:"log_level"`
 	DB       string `json:"db"`
 	Redis    string `json:"redis"`
+	RedisPass string `json:"redis_pass"`
 	LogPath  string `json:"log_path"`
 }
 
