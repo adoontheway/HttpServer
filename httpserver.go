@@ -9,6 +9,15 @@ import (
 	"os"
 )
 
+type HttpMethod uint8
+
+const (
+	GET HttpMethod = iota
+	POST
+	PUT
+	DELTE
+)
+
 type HttpConfig struct {
 	Port     int32  `json:"port"`
 	LogLevel int32  `json:"log_level"`
@@ -18,7 +27,7 @@ type HttpConfig struct {
 }
 
 type IHttpServer interface {
-	AddHandler(addr string, handler httprouter.Handle)
+	AddHandler(addr string,method HttpMethod, handler httprouter.Handle)
 	Start()
 	Stop()
 }
@@ -55,8 +64,16 @@ func NewHttpServer(addr string) IHttpServer {
 	}
 }
 
-func (s *httpServer) AddHandler(pattern string, handler httprouter.Handle) {
-	s.router.GET(pattern, handler)
+func (s *httpServer) AddHandler(pattern string, method HttpMethod,handler httprouter.Handle) {
+	switch method {
+	case GET:
+		s.router.GET(pattern, handler)
+	case POST:
+		s.router.POST(pattern, handler)
+	default:
+		s.router.GET(pattern, handler)
+	}
+
 }
 
 func (s *httpServer) Start() {

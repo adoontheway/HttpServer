@@ -11,21 +11,24 @@ import (
 type IDBConnector interface {
 	Connect(addr string) bool
 	Close()
+	GetClient() *mongo.Client
 }
 
 type dbconnector struct {
 	addr   string
-	client mongo.Client
+	client *mongo.Client
 }
+
 var connector *dbconnector
 
 func InitMongoConnector(addr string)  {
 	connector = &dbconnector{
 		addr: addr,
 	}
+	connector.Connect(connector.addr)
 }
 
-func (c dbconnector) Connect(addr string) bool {
+func (c *dbconnector) Connect(addr string) bool {
 	clientOptions := options.Client().ApplyURI(c.addr)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
@@ -39,12 +42,13 @@ func (c dbconnector) Connect(addr string) bool {
 		log.Fatal(err)
 		return false
 	}
+	c.client = client
 	//utils.Zapper.Info("Connect to MongoDB successed!")
 	log.Println("Connect to MongoDB successed!")
 	return true
 }
 
-func (c dbconnector) Close() {
+func (c *dbconnector) Close() {
 	err := c.client.Disconnect(context.TODO())
 	if err != nil {
 		log.Fatal(err)
@@ -53,7 +57,11 @@ func (c dbconnector) Close() {
 	log.Println("Disconnect MongoDB successed!")
 }
 
-func GetDBConnector()*IDBConnector  {
+func (c *dbconnector) GetClient() *mongo.Client {
+	return c.client
+}
+
+func GetDBConnector()IDBConnector  {
 	if connector == nil {
 		InitMongoConnector("")
 	}
